@@ -1,0 +1,3 @@
+v 1.0
+d Jacob Orchard, Brigham Young University Department of Economics
+p intreg2 Generalized Interval Regression

@@ -1,0 +1,26 @@
+v 1.0
+d intreg2 Generalized Interval Regression
+d Jacob Orchard, Brigham Young University Department of Economics
+
+
+d intreg2 fits a model of dependent variables on independent variables
+d using maximum likelihood where the dependent variable can be point data, 
+d interval data, right-censored data, or left-censored data.This is a 
+d generalization of the built in STATA command intreg and will yield identical
+d estimates if the normal distribution option is used.  Unlike intreg, 
+d intreg2 allows the underlying variable of interest to be distributed 
+d according to a more general distribution including all distributions in 
+d the Skewed Generalized T family and Generalized Beta of the Second Kind tree.
+d 
+d Support: orchard.jake@gmail.com
+d 
+p intreg2 Generalized Interval Regression 
+f intreg2.ado
+f intreg2.sthlp
+f intllf_gb2.ado
+f intllf_gg.ado
+f intllf_ln.ado
+f intllf_normal.ado
+f intllf_sged.ado
+f intllf_sgt.ado
+
