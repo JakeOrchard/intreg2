@@ -53,8 +53,27 @@ version 13.0
 			
 		local nregs: word count `regs'
 		local nsigma: word count `sigmavars'
+		local nlambda: word count `lambdavars'
 		local np: word count `pvars'
 		local nq: word count `qvars'
+		
+		
+		*Displays error if using the wrong parameter with chosen distribution
+		if  `nlambda' > 0 & ("`distribution'" != "sgt" | "`distribution'" != "sged"){
+				di as err "Lambda is not a parameter of the chosen distribution"  
+				exit 498 
+			}
+			
+		if `np' > 0 & ("`distribution'" != "sgt" | "`distribution'" != "gb2" | "`distribution'" ///
+								!= "gg" | "`distribution'" != "sged") {
+					di as err "p is not a parameter of the chosen distribution"  
+					exit 498
+				}
+		if  `nq' > 0 &  ("`distribution'" != "sgt" | "`distribution'" != "gb2") {
+
+						di as err "q is not a parameter of the chosen distribution"
+						exit 498 
+				}
 		
 		*Defines titles used when running the program
 	    local gb2title "Interval Regression with GB2 Distribution"

@@ -110,7 +110,7 @@ command; see {manhelp constraint R}.
 
 {phang}
 The {indepvars} specified will allow the location parameter (mu or a) to vary
-as a function of the independet variables. The other parameters in the distribution
+as a function of the independent variables. The other parameters in the distribution
 can also be a function of explanatory variables by using the commands below.
 If the user specifies a parameter that is not part of dist_type then {cmd: intreg2}
 will throw an error; e.g. specifying independent variables for q when using the
