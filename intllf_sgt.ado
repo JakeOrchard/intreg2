@@ -8,7 +8,7 @@ Update--5/26/2016*/
 
 program intllf_sgt
 version 13
-		args lnf m lambda sigma p q
+		args lnf mu lambda sigma p q
 		tempvar Fu Fl zu zl 
 		qui gen double `Fu' = .
 		qui gen double `Fl' = .
@@ -17,7 +17,7 @@ version 13
 		
 		*Point data
 			tempvar x s l y
-			qui gen double `x' = $ML_y1 - (`m') if $ML_y1 != . & $ML_y2 != . ///
+			qui gen double `x' = $ML_y1 - (`mu') if $ML_y1 != . & $ML_y2 != . ///
 												& $ML_y1 == $ML_y2
 												
 			qui gen double `s' = exp(`sigma') if $ML_y1 != . & $ML_y2 != .  ///
@@ -41,21 +41,21 @@ version 13
 		
 		
 		*Interval data
-			qui replace `zu' = abs($ML_y2 - `m')^`p'/(abs($ML_y2 - `m')^`p' + ///
-								`q'*`sigma'^`p'*(1+`lambda'*sign($ML_y2 -`m'))^`p') ///
+			qui replace `zu' = abs($ML_y2 - `mu')^`p'/(abs($ML_y2 - `mu')^`p' + ///
+								`q'*`sigma'^`p'*(1+`lambda'*sign($ML_y2 -`mu'))^`p') ///
 								if $ML_y1 != . & $ML_y2 != . &  $ML_y1 != $ML_y2
 								
 			qui replace `Fu' = .5*(1-`lambda') + .5*(1+`lambda'*sign($ML_y2- ///
-								`m'))*sign($ML_y2 - `m')*exp(lngamma(1/`p')+ ///
+								`mu'))*sign($ML_y2 - `mu')*exp(lngamma(1/`p')+ ///
 								lngamma(`q')-lngamma(1/`p'+`q'))*ibeta(1/`p',`q',`zu') ///
 								if $ML_y1 != . & $ML_y2 != . &  $ML_y1 != $ML_y2
 								
-			qui replace `zl' = abs($ML_y1 - `m')^`p'/(abs($ML_y1 - `m')^`p' + ///
-								`q'*`sigma'^`p'*(1+`lambda'*sign($ML_y1 -`m'))^`p') ///
+			qui replace `zl' = abs($ML_y1 - `mu')^`p'/(abs($ML_y1 - `mu')^`p' + ///
+								`q'*`sigma'^`p'*(1+`lambda'*sign($ML_y1 -`mu'))^`p') ///
 								if $ML_y1 != . & $ML_y2 != . &  $ML_y1 != $ML_y2
 								
 			qui replace `Fl' = .5*(1-`lambda') + .5*(1+`lambda'*sign($ML_y1- ///
-								`m'))*sign($ML_y1 - `m')*exp(lngamma(1/`p')+ ///
+								`mu'))*sign($ML_y1 - `mu')*exp(lngamma(1/`p')+ ///
 								lngamma(`q')-lngamma(1/`p'+`q'))*ibeta(1/`p',`q',`zl') ///
 								if $ML_y1 != . & $ML_y2 != . &  $ML_y1 != $ML_y2
 								
@@ -63,24 +63,24 @@ version 13
 														$ML_y1 != $ML_y2
 		
 		*Bottom coded data
-			qui replace `zl' = abs($ML_y1 - `m')^`p'/(abs($ML_y1 - `m')^`p' + ///
-								`q'*`sigma'^`p'*(1+`lambda'*sign($ML_y1 -`m'))^`p') ///
+			qui replace `zl' = abs($ML_y1 - `mu')^`p'/(abs($ML_y1 - `mu')^`p' + ///
+								`q'*`sigma'^`p'*(1+`lambda'*sign($ML_y1 -`mu'))^`p') ///
 								if $ML_y1 != . & $ML_y2 == .
 								
 			qui replace `Fl' = .5*(1-`lambda') + .5*(1+`lambda'*sign($ML_y1- ///
-								`m'))*sign($ML_y1 - `m')*exp(lngamma(1/`p')+ ///
+								`mu'))*sign($ML_y1 - `mu')*exp(lngamma(1/`p')+ ///
 								lngamma(`q')-lngamma(1/`p'+`q'))*ibeta(1/`p',`q',`zl') ///
 								if $ML_y1 != . & $ML_y2 == .
 								
 			qui replace `lnf' = log(1-`Fl') if $ML_y1 != . & $ML_y2 == .
 		
 		*Top coded data
-			qui replace `zu' = abs($ML_y2 - `m')^`p'/(abs($ML_y2 - `m')^`p' + ///
-								`q'*`sigma'^`p'*(1+`lambda'*sign($ML_y2 -`m'))^`p') ///
+			qui replace `zu' = abs($ML_y2 - `mu')^`p'/(abs($ML_y2 - `mu')^`p' + ///
+								`q'*`sigma'^`p'*(1+`lambda'*sign($ML_y2 -`mu'))^`p') ///
 								if $ML_y2 != . & $ML_y1 == .
 								
 			qui replace `Fu' = .5*(1-`lambda') + .5*(1+`lambda'*sign($ML_y2- ///
-								`m'))*sign($ML_y2 - `m')*exp(lngamma(1/`p')+ ///
+								`mu'))*sign($ML_y2 - `mu')*exp(lngamma(1/`p')+ ///
 								lngamma(`q')-lngamma(1/`p'+`q'))*ibeta(1/`p',`q',`zu') ///
 								if $ML_y2 != . & $ML_y1 == .
 								

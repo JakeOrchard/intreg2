@@ -5,7 +5,7 @@ d Jacob Orchard, Brigham Young University Department of Economics
 
 d intreg2 fits a model of dependent variables on independent variables
 d using maximum likelihood where the dependent variable can be point data, 
-d interval data, right-censored data, or left-censored data.This is a 
+d interval data, right-censored data, or left-censored data. This is a 
 d generalization of the built in STATA command intreg and will yield identical
 d estimates if the normal distribution option is used.  Unlike intreg, 
 d intreg2 allows the underlying variable of interest to be distributed 
@@ -17,8 +17,8 @@ d
 p intreg2 Generalized Interval Regression 
 f intreg2.ado
 f intreg2.sthlp
-f intllf_gb2.ado
-f intllf_gg.ado
+f intllf_gb2sigma.ado
+f intllf_ggsigma.ado
 f intllf_ln.ado
 f intllf_normal.ado
 f intllf_sged.ado

@@ -1,5 +1,5 @@
 {smcl}
-{* *! version 1.0  2jun2016}{...}
+{* *! version 1.1  14jun2016}{...}
 {viewerjumpto "Syntax" "examplehelpfile##syntax"}{...}
 {viewerjumpto "Description" "examplehelpfile##description"}{...}
 {viewerjumpto "Options" "examplehelpfile##options"}{...}
@@ -44,15 +44,13 @@
 {synoptline}
 {syntab:Main}
 {synopt:{opt dist:ribution}(dist_type)} dist_type may be gb2, gg, lnormal, sgt, sged, or
-normal; Default is normal. {p_end}
+normal; default is normal. {p_end}
 {synopt:{opth const:raints(numlist)}} specified linear constraints by number to be applied. Can use this option along with {opt dist:ribution} to allow for any distribution in the SGT or GB2 family trees.{p_end}
 {syntab: Model}
 {synopt:{cmdab: sigma(}{varlist}{cmd:)}} allow sigma to vary as a function of independent variables; can use with dist_type normal, lnormal, sgt, or sged. {p_end}
 {synopt:{cmdab: lambda(}{varlist}{cmd:)}} allow lambda to vary as a function of independent variables; can use with dist_type sgt or sged. {p_end}
 {synopt:{cmdab: p(}{varlist}{cmd:)}} allow p to vary as a function of independent variables; can use with dist_type gb2, gg, sgt, or sged. {p_end}
 {synopt:{cmdab: q(}{varlist}{cmd:)}} allow q to vary as a function of independent variables; can use with dist_type gb2 or sgt. {p_end}
-{synopt:{cmdab: b(}{varlist}{cmd:)}} allow b to vary as a function of independent variables; can use with dist_type gb2. {p_end}
-{synopt:{cmdab: beta(}{varlist}{cmd:)}} allow beta to vary as a function of independent variables; can use with dist_type gg. {p_end}
 
 {syntab: SE/Robust}
 
@@ -69,6 +67,7 @@ maximization process{p_end}
 
 {syntab: Display}
 {synopt: {opt showc:onstonly}} Show the estimated constant only model. {p_end}
+{synopt: {opth eyx(stat)}} Show the expected value of {depvar} conditional on {indepvars} at level of stat; default is mean. {p_end}
 {synoptline}
 {p2colreset}{...}
 
@@ -132,9 +131,7 @@ that impacts the tail thickness and peakedness of the distribution.
 {cmd:q(}{it:{help varlist)}} allows q to be a function of {varlist}. A shape parameter
 that impacts the tail thickness and peakedness of the distribution.
 
-{phang}
-TODO: Transform GB2 and GG so that these distributions will have mu and sigma
-parameters instead of a and b parameters.
+
 
 {dlgtab: Standard Errors}
 
@@ -181,6 +178,31 @@ the GB2 and the SGED, and five for the SGT.
 {opt showc:onstonly} {cmd:: intreg2} will always estimate the constant only model
 first prior to estimating the model with {indepvars}, but this output is suppressed.
  Use this option to see the estimate of the constant only model.
+ 
+{phang}
+{opt eyx(stat)} This option helps with inference in models with a positive distribution
+(gb2, gg, lnormal). It displays the estimated conditional value of the dependent variable
+with respect to the independent variables being at the level of stat. If stat is not 
+specified then the independent variables will be taken at their mean levels:
+
+{synoptset 15 tabbed}{...}
+{p2col 5 15 19 2: stat}{p_end}
+{synopt:{cmd:mean}}mean values of independent variables{p_end}
+{synopt:{cmd:min}}minimum values of independent variables{p_end}
+{synopt:{cmd:max}}maximum values of independent variables{p_end}
+{synopt:{cmd: p1}}1st percentile of independent variables{p_end}
+{synopt:{cmd: p5}}5th percentile of independent variables {p_end}
+{synopt:{cmd: p10}}10th percentile of independent variables{p_end}
+{synopt:{cmd: p25}}25th percentile of independent variables{p_end}
+{synopt:{cmd: p50}}50th percentile of independent variables{p_end}
+{synopt:{cmd: p75}}75th percentile of independent variables{p_end}
+{synopt:{cmd: p90}}90th percentile of independent variables{p_end}
+{synopt:{cmd: p95}}95th percentile of independent variables{p_end}
+{synopt:{cmd: p99}}99th percentile of independent variables{p_end}
+{p2colreset}{...}
+
+
+
 
 {marker remarks}{...}
 {title:Remarks}
@@ -209,6 +231,10 @@ the observations on wages are
 
 {pstd}Interval regression with gb2 distribution (use difficult option) {p_end}
 {phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age nev_mar rural school, distribution(gb2) difficult}
+
+{pstd}Interval regression with gb2 distribution with the expected value of the 
+dependent variable evaluated when the independent variables are at the 25 percentile {p_end}
+{phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age, distribution(gb2) eyx(p25) difficult}
 
 
 {pstd}Interval regression with sgt distribution allowing sigma to vary as a function of independent variables{p_end}

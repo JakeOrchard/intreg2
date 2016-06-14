@@ -2,12 +2,12 @@
 distributed in the GB2 or SGT family tree
 
 Author--Jacob Orchard
-v 1
-Update--5/25/2016*/
+v 1.2
+Update--6/8/2016*/
 
 
 
-
+program drop intreg2
 program intreg2, eclass
 version 13.0
 	if replay() {
@@ -15,10 +15,17 @@ version 13.0
 	}
 	else {
 		set more off
-		syntax varlist(min=2 fv ts) [if] [in] [, DISTribution(string) /// 
+		syntax varlist(min=2 fv ts)  [aw fw pw iw] [if] [in] ///
+		[, DISTribution(string) /// 
 		sigma(varlist) ///
-		lambda(varlist) p(varlist) q(varlist) b(varlist) beta(varlist)  ///
-		INITial(numlist) vce(passthru)  ///
+		lambda(varlist) ///
+		p(varlist) ///
+		q(varlist) ///
+		b(varlist) ///
+		beta(varlist)  ///
+		INITial(numlist) ///
+		vce(passthru)  ///
+		eyx(string) ///
 		CONSTraints(passthru) DIFficult TECHnique(passthru) ITERate(passthru)  /// 
 		nolog TRace GRADient showstep HESSian SHOWTOLerance TOLerance(passthru) ///
 		LTOLerance(passthru) NRTOLerance(passthru) robust cluster(passthru) ///
@@ -44,12 +51,7 @@ version 13.0
 		if "`q;" != ""{
 			local qvars `q'
 			}
-		if "`b;" != ""{
-			local bvars `b'
-			}
-		if "`beta;" != ""{
-			local bvars `beta'
-			}
+		
 			
 		local nregs: word count `regs'
 		local nsigma: word count `sigmavars'
@@ -59,17 +61,17 @@ version 13.0
 		
 		
 		*Displays error if using the wrong parameter with chosen distribution
-		if  `nlambda' > 0 & ("`distribution'" != "sgt" | "`distribution'" != "sged"){
+		if  (`nlambda' > 0) & (("`distribution'" != "sgt") & ("`distribution'" != "sged")){
 				di as err "Lambda is not a parameter of the chosen distribution"  
 				exit 498 
 			}
 			
-		if `np' > 0 & ("`distribution'" != "sgt" | "`distribution'" != "gb2" | "`distribution'" ///
-								!= "gg" | "`distribution'" != "sged") {
+		if `np' > 0 & ("`distribution'" != "sgt" & "`distribution'" != "gb2" & "`distribution'" ///
+								!= "gg" & "`distribution'" != "sged") {
 					di as err "p is not a parameter of the chosen distribution"  
 					exit 498
 				}
-		if  `nq' > 0 &  ("`distribution'" != "sgt" | "`distribution'" != "gb2") {
+		if  `nq' > 0 &  ("`distribution'" != "sgt" & "`distribution'" != "gb2") {
 
 						di as err "q is not a parameter of the chosen distribution"
 						exit 498 
@@ -214,7 +216,8 @@ version 13.0
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
 			`tolerance' `ltolerance' `nrtolerance' title(`normaltitle') `vce' ///
 			`robust' `cluster' `svy'
-		
+			
+			ml display
 			
 		}
 		else if "`distribution'" == "lnormal" | "`distribution'" == "ln" {
@@ -245,6 +248,7 @@ version 13.0
 			`showtolerance' `tolerance' `ltolerance' `nrtolerance' title(`lntitle') ///
 			`vce'  `robust' `cluster' `svy'
 			
+			ml display
 			
 		}
 		else if "`distribution'" == "sgt"{
@@ -254,7 +258,7 @@ version 13.0
 			di " "
 			di as txt "Fitting constant only model:"
 			
-			ml model lf `evaluator' (m: `depvar1' `depvar2' = )   ///
+			ml model lf `evaluator' (mu: `depvar1' `depvar2' = )   ///
 			(lambda: ) (sigma:  ) (p: ) (q:  ///
 			) if `touse' ==1 , missing search(on) maximize  ///
 			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
@@ -269,7 +273,7 @@ version 13.0
 			di " "
 			di as txt "Fitting Full model:"
 			
-			ml model lf `evaluator' (m: `depvar1' `depvar2' = `regs')   ///
+			ml model lf `evaluator' (mu: `depvar1' `depvar2' = `regs')   ///
 			(lambda: `lambdavars') (sigma: `sigmavars' ) (p: `pvars') (q:  ///
 			`qvars') if `touse' ==1 , missing search(on) maximize continue ///
 			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
@@ -277,6 +281,7 @@ version 13.0
 			`tolerance' `ltolerance' `nrtolerance' title(`sgttitle') `vce'  ///
 			`robust' `cluster' `svy'
 			
+			ml display
 			
 		}
 		else if "`distribution'" == "sged"{
@@ -302,25 +307,26 @@ version 13.0
 			di as txt "Fitting Full model:"
 			
 			ml model lf `evaluator' (m: `depvar1' `depvar2' = `regs')   ///
-			(lambda: `lambdavars') (sigma: `sigmavars' ) (p: `pvars')   ///
+			(lambda: `lambdavars') (sigma: `sigmavars' ) (p: `pvars') [`weight'`exp']   ///
 			 if `touse' ==1 , missing search(on) maximize continue ///
 			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
 			`tolerance' `ltolerance' `nrtolerance' title(`sgttitle') `vce'  ///
 			`robust' `cluster' `svy'
 			
+			ml display
 			
 		}
 		else if "`distribution'" == "gb2"{
 			
-			local evaluator intllf_gb2
+			local evaluator intllf_gb2sigma
 			
 			di " "
 			di as txt "Fitting constant only model:"
 			
-			ml model lf `evaluator' (a: `depvar1' `depvar2' = )   ///
-			(b: ) (p: ) (q:  ///
-			) if `touse' ==1 , missing search(on) maximize  ///
+			ml model lf `evaluator' (delta: `depvar1' `depvar2' = )   ///
+			(sigma:  ) (p: ) (q:  ///
+			) [`weight'`exp'] if `touse' ==1 , missing search(on) maximize  ///
 			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
 			`tolerance' `ltolerance' `nrtolerance' title(`gb2title') `vce'  ///
@@ -333,25 +339,26 @@ version 13.0
 			di " "
 			di as txt "Fitting Full model:"
 			
-			ml model lf `evaluator' (a: `depvar1' `depvar2' = `regs')   ///
-			(b: `bvars') (p: `pvars') (q:  ///
-			`qvars') if `touse' ==1 , missing search(on) maximize continue ///
+			ml model lf `evaluator' (delta: `depvar1' `depvar2' = `regs')   ///
+			(sigma: `sigmavars') (p: `pvars') (q:  ///
+			`qvars') [`weight'`exp'] if `touse' ==1 , missing search(on) maximize continue ///
 			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
 			`tolerance' `ltolerance' `nrtolerance' title(`gb2title') `vce'  ///
 			`robust' `cluster' `svy'
 			
+			ml display, plus
 			
 		}
 		else if "`distribution'" == "gg"{
 			
-			local evaluator intllf_gg
+			local evaluator intllf_ggsigma
 			
 			di " "
 			di as txt "Fitting constant only model:"
 			
-			ml model lf `evaluator' (a: `depvar1' `depvar2' = )   ///
-			(beta: ) (p: )   ///
+			ml model lf `evaluator' (delta: `depvar1' `depvar2' = )   ///
+			(sigma: ) (p: ) [`weight'`exp']  ///
 			 if `touse' ==1 , missing search(on) maximize  ///
 			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
@@ -365,14 +372,15 @@ version 13.0
 			di " "
 			di as txt "Fitting Full model:"
 			
-			ml model lf `evaluator' (a: `depvar1' `depvar2' = `regs')   ///
-			(beta: `betavars') (p: `pvars')   ///
+			ml model lf `evaluator' (delta: `depvar1' `depvar2' = `regs')   ///
+			(sigma: `sigmavars') (p: `pvars') [`weight'`exp']   ///
 			 if `touse' ==1 , missing search(on) maximize continue ///
 			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
 			`tolerance' `ltolerance' `nrtolerance' title(`ggtitle') `vce'  ///
 			`robust' `cluster' `svy'
 			
+			ml display
 			
 		}
 		else{
@@ -383,7 +391,7 @@ version 13.0
 			di as txt "Fitting constant only model:"
 			
 			ml model lf `evaluator' (mu: `depvar1' `depvar2'=)  (sigma: ///
-			) if `touse' ==1 , missing search(on)   maximize /// 
+			)  [`weight'`exp']  if `touse' ==1 , missing search(on)   maximize /// 
 			initial(`initial') `constraints' `technique'  `difficult' `iterate' ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
 			`tolerance' `ltolerance' `nrtolerance' title(`normaltitle') `vce' ///
@@ -397,17 +405,100 @@ version 13.0
 			di as txt "Fitting Full model:"
 			
 			ml model lf `evaluator' (mu: `depvar1' `depvar2' = `regs')  (sigma: ///
-			`sigmavars') if `touse' ==1 , missing search(on) continue  maximize /// 
+			`sigmavars')  [`weight'`exp']  if `touse' ==1 , missing search(on) continue  maximize /// 
 			initial(`initial') `constraints' `technique'  `difficult' `iterate' ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
 			`tolerance' `ltolerance' `nrtolerance' title(`normaltitle') `vce' ///
 			`robust' `cluster' `svy'
 			
+			ml display
 		}
 		
-		ml display
+		mat betas = e(b) //coefficient matrix
 		
-		*Additional output
+		*Find the Conditional expected value at specified level
+		if "`distribution'" == "gb2" | "`distribution'" == "gg" | "`distribution'" ///
+							== "ln" | "`distribution'" == "lnormal"		{
+			
+			mat mid_Xs = 1
+			if "`eyx'" == ""{
+				local eyx "mean"
+				di "{res:`eyx'}         {c |}"
+			}
+			else if "`eyx'" == "mean" {
+			di "{res:`eyx'}         {c |}" 
+			}
+			else if "`eyx'" == "p50" | "`eyx'" == "p10" | "`eyx'" == "p25" | ///
+			        "`eyx'" == "p75" | "`eyx'" == "p90" | "`eyx'" == "p95" | ///
+					"`eyx'" == "p99" | "`eyx'" == "min" | "`eyx'" == "max" {		
+			
+					di "{res:`eyx'}          {c |}"
+				}
+			else if "`eyx'" == "p1" | "`eyx'" == "p5" {
+				di "{res:`eyx'}           {c |}"
+				}
+			else{
+				di as err "Not a valid option for eyx"
+				exit 498
+				}
+			
+			
+			quietly foreach x in `regs' {
+				sum `x', detail
+				scalar mid_ = r(`eyx')
+				mat mid_Xs = mid_Xs, mid_
+			}
+			mat sigma = betas[1,"sigma:_cons"]
+			scalar sigma = sigma[1,1]
+			
+			if "`distribution'" == "gb2"{
+			
+				mat deltas = betas[1,"delta:"]
+				mat deltas = deltas'
+				mata: st_matrix("deltas", flipud(st_matrix("deltas"))) //flips matrix around
+		                        									// to conform with Xs									
+				mat p = betas[1,"p:_cons"]
+				scalar p = p[1,1]
+				mat q = betas[1,"q:_cons"]
+				scalar q = q[1,1]
+				mat xbeta = mid_Xs*deltas
+				scalar xbeta = xbeta[1,1]
+				mat expected = exp(xbeta)*( (exp(lngamma(p+sigma))*exp(lngamma(q-sigma)))/  ///
+											( exp(lngamma(p))*exp(lngamma(q))))
+			}
+			
+			if "`distribution'" == "gg"{
+			
+				mat deltas = betas[1,"delta:"]
+				mat deltas = deltas'
+				mata: st_matrix("deltas", flipud(st_matrix("deltas"))) //flips matrix around
+																		// to conform with Xs										
+				mat p = betas[1,"p:_cons"]
+				scalar p = p[1,1]
+				mat xbeta = mid_Xs*deltas
+				scalar xbeta = xbeta[1,1]
+				mat expected = exp(xbeta)*( (exp(lngamma(p+sigma)))/  ///
+											( exp(lngamma(p))))
+			}
+			
+			if "`distribution'" == "ln" | "`distribution'" == "lnormal" {
+				
+				mat mu = betas[1,"mu:"]
+				mat mu = mu'
+				mata: st_matrix("mu", flipud(st_matrix("mu"))) //flips matrix around
+																		// to conform with Xs										
+				mat xbeta = mid_Xs*mu
+				scalar xbeta = xbeta[1,1]
+				mat expected = exp((xbeta + sigma^2)/2)
+			}
+					
+			scalar eyx = expected[1,1]
+			table_line "E[Y|X]" eyx 
+			di as text "{hline 13}{c BT}{hline 64}"
+		
+		}
+		
+		*Observation type count
 		noi di " "
 		if `nleft' != 1{
 			noi di as txt " {res:`nleft'} left-censored observations" 
@@ -436,4 +527,49 @@ version 13.0
 		
 		qui ereturn list
 		}
+end
+
+program drop table_line
+program table_line
+	args vname coef se z p 95l 95h
+	if (c(linesize) >= 100){
+		local abname = "`vname'"
+		}
+	else if (c(linesize) > 80){
+	local abname = abbrev("`vname'", 12+(c(linesize)-80))
+	}
+	else{
+	local abname = abbrev("`vname'", 12)
+	}
+	local abname = abbrev("`vname'",12)
+	display as text %12s "`abname'" " { c |}" /*
+	*/ as result /*
+	*/ " " %8.0g `coef' " " /*
+	*/ %9.0g `se' " " %9.0g `z' " " /*
+	*/ %9.0g `p' "  " %9.0g `95l' "   " /*
+	*/ %9.0g `95h'
+end
+
+mata: mata drop delta_sigma()
+version 13
+mata: 
+	void delta_sigma( ) //Computes delta and sigma from a and
+											// b for the gb2 distribution
+	{
+		as = st_matrix("As")
+		bs = st_matrix("Bs")
+		u = J(1,cols(as),1)
+		Sigmas = u :/ as
+		Deltas = log(bs)
+		st_matrix("Sigmas",Sigmas)
+		st_matrix("Deltas",Deltas)
+	}
+end
+
+version 13.0
+mata:
+matrix function flipud(matrix X)
+{
+return(rows(X)>1 ? X[rows(X)..1,.] : X)
+}
 end
