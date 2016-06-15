@@ -240,12 +240,10 @@ dependent variable evaluated when the independent variables are at the 25 percen
 {pstd}Interval regression with sgt distribution allowing sigma to vary as a function of independent variables{p_end}
 {phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age nev_mar rural school tenure, distribution(sgt) sigma(age)}
 
-{pstd}Interval regression using the t distribution (TODO: This isn't working currently) {p_end}
-{phang2}{cmd:. constraint define 1 [lambda]_cons=0}
+{pstd}Interval regression using the burr3 distribution {p_end}
+{phang2}{cmd:. constraint define 1 [q]_cons=1}
 
-{phang2}{cmd:. constraint define 2 [p]_cons=2 }
-
-{phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age nev_mar rural school tenure, distribution(sgt) constraints( 1 2)}
+{phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age nev_mar rural school tenure, distribution(gb2) constraints( 1 )}
 
 {marker references}{...}
 {title:References}

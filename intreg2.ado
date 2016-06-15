@@ -7,7 +7,7 @@ Update--6/8/2016*/
 
 
 
-*program drop intreg2
+program drop intreg2
 program intreg2, eclass
 version 13.0
 	if replay() {
@@ -165,8 +165,16 @@ version 13.0
 				noi di as text " not used in calculations"
 				}
 				
-
-		  replace `touse' = 0 if `depvar1' <= 0 & `depvar2' <= 0
+			count if `depvar1' == . & `depvar2' <= 0 & `touse' & `depvar1' != `depvar2'
+			local n =  r(N) 
+			  if `n' > 0 {
+				noi di " "
+				noi di as txt " {res:`depvar1'} has `n' left censored values <= 0;" _c
+				noi di as text " not used in calculations"
+				}
+				
+		  replace `touse' = 0 if  `depvar2' <= 0
+		  
 		  }
 		}
 		
