@@ -7,7 +7,7 @@ Update--6/8/2016*/
 
 
 
-program drop intreg2
+*program drop intreg2
 program intreg2, eclass
 version 13.0
 	if replay() {
@@ -529,7 +529,7 @@ version 13.0
 		}
 end
 
-program drop table_line
+*program drop table_line
 program table_line
 	args vname coef se z p 95l 95h
 	if (c(linesize) >= 100){
@@ -550,7 +550,7 @@ program table_line
 	*/ %9.0g `95h'
 end
 
-mata: mata drop delta_sigma()
+*mata: mata drop delta_sigma()
 version 13
 mata: 
 	void delta_sigma( ) //Computes delta and sigma from a and
