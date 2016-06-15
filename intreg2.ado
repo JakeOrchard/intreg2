@@ -7,7 +7,7 @@ Update--6/8/2016*/
 
 
 
-program drop intreg2
+*program drop intreg2
 program intreg2, eclass
 version 13.0
 	if replay() {
