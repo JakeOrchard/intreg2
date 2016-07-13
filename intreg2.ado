@@ -80,6 +80,12 @@ version 13.0
 						di as err "q is not a parameter of the chosen distribution"
 						exit 498 
 				}
+		*Displays error if depvar1 is greater than depvar2
+		qui count if `depvar1' > `depvar2' & `depvar1' != .
+		if r(N) >0{
+			di as err "Dependent variable 1 is greater than dependent variable 2 for some observation"
+			exit 198
+		}
 		
 		*Defines titles used when running the program
 	    local gb2title "Interval Regression with GB2 Distribution"
