@@ -36,7 +36,15 @@
              right-censored data{space 3}[{it:a},inf){space 4}{it:a}{space 8}{cmd:.} 
              {hline 46}
 
+If using grouped data then the form will be similar:
 
+	     Type of data {space 16} {it:depvar1}  {it:depvar2} {space 1} {it: frequency}
+             {hline 66}
+             point data{space 10}{it:a} = [{it:a},{it:a}]{space 4}{it:a}{space 8 }{it:a} {space 8} {it:n}
+             interval data{space 11}[{it:a},{it:b}]{space 4}{it:a}{space 8}{it:b } {space 7} {it:n}
+             left-censored data{space 3}(-inf,{it:b}]{space 4}{cmd:.}{space 8}{it:b} {space 8} {it:n}
+             right-censored data{space 3}[{it:a},inf){space 4}{it:a}{space 8}{cmd:.}  {space 7} {it:n}
+             {hline 66}
 
 
 {synoptset 24 tabbed}{...}
@@ -46,6 +54,8 @@
 {synopt:{opt dist:ribution}(dist_type)} dist_type may be gb2, gg, lnormal, sgt, sged, or
 normal; default is normal. {p_end}
 {synopt:{opth const:raints(numlist)}} specified linear constraints by number to be applied. Can use this option along with {opt dist:ribution} to allow for any distribution in the SGT or GB2 family trees.{p_end}
+{synopt:{opth freq:uency(varlist)}} if using group data specify variable that denotes frequency. {p_end}
+
 {syntab: Model}
 {synopt:{cmdab: sigma(}{varlist}{cmd:)}} allow sigma to vary as a function of independent variables; can use with dist_type normal, lnormal, sgt, or sged. {p_end}
 {synopt:{cmdab: lambda(}{varlist}{cmd:)}} allow lambda to vary as a function of independent variables; can use with dist_type sgt or sged. {p_end}
@@ -82,7 +92,8 @@ or left-censored data. This is a generalization of the built in STATA command
 {cmd: intreg} and will yield identical estimates if the normal distribution option is used.
 Unlike {cmd: intreg}, {cmd: intreg2} allows the underlying variable of interest to
 be distributed according to a more general distribution including all distributions
-in the Skewed Generalized T family and Generalized Beta of the Second Kind tree.
+in the Skewed Generalized T family and Generalized Beta of the Second Kind tree. Finally,
+{cmd: intreg2} allows for grouped data when using the frequency option.
 
  
 
@@ -104,6 +115,10 @@ normal; Default is normal.
 Can use this option along with {opt dist:ribution} to allow for any distribution in the SGT or GB2 family trees.
 Constraints are defined using the {cmd:constraint}
 command; see {manhelp constraint R}.
+
+{phang} 
+{opt freq:uency}({it:{help varlist)}} if using grouped data, specify the variable 
+that denotes the frequency of the observation.  
 
 {dlgtab: Model}
 
@@ -181,9 +196,11 @@ first prior to estimating the model with {indepvars}, but this output is suppres
  
 {phang}
 {opt eyx(stat)} This option helps with inference in models with a positive distribution
-(gb2, gg, lnormal). It displays the estimated conditional value of the dependent variable
-with respect to the independent variables being at the level of stat. If stat is not 
-specified then the independent variables will be taken at their mean levels:
+(gb2, gg, lnormal). At the end of the STATA printout, it displays the estimated conditional value of the dependent variable
+with respect to the independent variables being at the level of stat. This result is returned and is accessible after estimation
+by e(eyx).
+
+If stat is not specified then the independent variables will be taken at their mean levels:
 
 {synoptset 15 tabbed}{...}
 {p2col 5 15 19 2: stat}{p_end}
@@ -233,7 +250,8 @@ the observations on wages are
 {phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age nev_mar rural school, distribution(gb2) difficult}
 
 {pstd}Interval regression with gb2 distribution with the expected value of the 
-dependent variable evaluated when the independent variables are at the 25 percentile {p_end}
+dependent variable evaluated when the independent variables are at the 25 percentile (E[Y|X] appears 
+at the end of the printout {p_end}
 {phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age, distribution(gb2) eyx(p25) difficult}
 
 

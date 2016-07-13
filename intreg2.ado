@@ -2,8 +2,8 @@
 distributed in the GB2 or SGT family tree
 
 Author--Jacob Orchard
-v 1.2
-Update--6/8/2016*/
+v 1.3
+Update--7/13/2016*/
 
 
 
@@ -29,7 +29,10 @@ version 13.0
 		CONSTraints(passthru) DIFficult TECHnique(passthru) ITERate(passthru)  /// 
 		nolog TRace GRADient showstep HESSian SHOWTOLerance TOLerance(passthru) ///
 		LTOLerance(passthru) NRTOLerance(passthru) robust cluster(passthru) ///
-		svy SHOWConstonly] 
+		svy SHOWConstonly FREQuency(varlist)] 
+		
+		
+		
 		
 		*Defines Independent and Dependent Variables
 		local depvar1: word 1 of `varlist'
@@ -58,6 +61,7 @@ version 13.0
 		local nlambda: word count `lambdavars'
 		local np: word count `pvars'
 		local nq: word count `qvars'
+		
 		
 		
 		*Displays error if using the wrong parameter with chosen distribution
@@ -180,6 +184,8 @@ version 13.0
 		
 		*Counts the number of each type of interval
 		quietly{
+			count
+			local total = r(N)
 			count if `depvar1' != . & `depvar2' != . & `depvar1' == `depvar2'  /// 
 			& `touse' == 1
 			local nuncensored = r(N)
@@ -193,6 +199,11 @@ version 13.0
 			count if `depvar1' == . & `depvar2' ==. & `touse' == 1
 			local nnoobs = r(N)
 			
+		}
+		*Duplicates observations if group data
+		if "`frequency'" != ""{
+			preserve
+			qui expand `frequency'
 		}
 		
 		*Evaluates model
@@ -503,38 +514,75 @@ version 13.0
 			scalar eyx = expected[1,1]
 			table_line "E[Y|X]" eyx 
 			di as text "{hline 13}{c BT}{hline 64}"
+			ereturn scalar eyx = eyx
 		
 		}
 		
-		*Observation type count
-		noi di " "
-		if `nleft' != 1{
-			noi di as txt " {res:`nleft'} left-censored observations" 
+		*Observation type count for interval regression
+		if "`frequency'" == ""{
+			noi di " "
+			if `nleft' != 1{
+				noi di as txt " {res:`nleft'} left-censored observations" 
+			}
+			if `nleft' == 1{
+				noi di as txt " {res:`nleft'} left-censored observation" 
+			}
+			if `nuncensored' != 1{
+				noi di as txt " {res: `nuncensored'} uncensored observations" 
+			}
+			if `nuncensored' == 1{
+				noi di as txt " {res:`nuncensored'} uncensored observation" 
+			}
+			if `nright' != 1{
+				noi di as txt " {res:`nright'} right-censored observations" 
+			}
+			if `nright' == 1{
+				noi di as txt " {res:`nright'} right-censored observation" 
+			}
+			if `ninterval' != 1{
+				noi di as txt " {res:`ninterval'} interval observations" 
+			}
+			if `ninterval' == 1{
+				noi di as txt " {res:`ninterval'} interval observation" 
+			}
 		}
-		if `nleft' == 1{
-			noi di as txt " {res:`nleft'} left-censored observation" 
+		*Observation type count for grouped regression
+		if "`frequency'" ~= ""{
+			restore 
+			noi di " "
+			noi di as txt " {res: `total'} groups"
+			if `nleft' != 1{
+				noi di as txt " {res:`nleft'} left-censored groups" 
+			}
+			if `nleft' == 1{
+				noi di as txt " {res:`nleft'} left-censored group" 
+			}
+			if `nuncensored' != 1{
+				noi di as txt " {res: `nuncensored'} uncensored groups" 
+			}
+			if `nuncensored' == 1{
+				noi di as txt " {res:`nuncensored'} uncensored group" 
+			}
+			if `nright' != 1{
+				noi di as txt " {res:`nright'} right-censored groups" 
+			}
+			if `nright' == 1{
+				noi di as txt " {res:`nright'} right-censored group" 
+			}
+			if `ninterval' != 1{
+				noi di as txt " {res:`ninterval'} interval groups" 
+			}
+			if `ninterval' == 1{
+				noi di as txt " {res:`ninterval'} interval group" 
+			}
 		}
-		if `nuncensored' != 1{
-			noi di as txt " {res: `nuncensored'} uncensored observations" 
-		}
-		if `nuncensored' == 1{
-			noi di as txt " {res:`nuncensored'} uncensored observation" 
-		}
-		if `nright' != 1{
-			noi di as txt " {res:`nright'} right-censored observations" 
-		}
-		if `nright' == 1{
-			noi di as txt " {res:`nright'} right-censored observation" 
-		}
-		if `ninterval' != 1{
-			noi di as txt " {res:`ninterval'} interval observations" 
-		}
-		if `ninterval' == 1{
-			noi di as txt " {res:`ninterval'} interval observation" 
-		}
-		
 		qui ereturn list
+		
 		}
+		
+		
+		
+	
 end
 
 *program drop table_line
@@ -558,21 +606,7 @@ program table_line
 	*/ %9.0g `95h'
 end
 
-*mata: mata drop delta_sigma()
-version 13
-mata: 
-	void delta_sigma( ) //Computes delta and sigma from a and
-											// b for the gb2 distribution
-	{
-		as = st_matrix("As")
-		bs = st_matrix("Bs")
-		u = J(1,cols(as),1)
-		Sigmas = u :/ as
-		Deltas = log(bs)
-		st_matrix("Sigmas",Sigmas)
-		st_matrix("Deltas",Deltas)
-	}
-end
+
 
 version 13.0
 mata:

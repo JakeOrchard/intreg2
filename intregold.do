@@ -115,3 +115,19 @@
 			
 			
 		}
+		
+*mata: mata drop delta_sigma()
+version 13
+mata: 
+	void delta_sigma( ) //Computes delta and sigma from a and
+											// b for the gb2 distribution
+	{
+		as = st_matrix("As")
+		bs = st_matrix("Bs")
+		u = J(1,cols(as),1)
+		Sigmas = u :/ as
+		Deltas = log(bs)
+		st_matrix("Sigmas",Sigmas)
+		st_matrix("Deltas",Deltas)
+	}
+end
