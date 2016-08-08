@@ -1,14 +1,15 @@
 /*This ado file gives the log likelihood function used in interval regressions
 for the GG distribution. It uses the delta-sigma parameterization.
+For use with group data.
 It works with intreg2.ado
 v 1
 Author--Jacob Orchard
-Update--6/9/2016*/
+Update--8/8/2016*/
 
 
 
 
-program intllf_ggsigma
+program intllf_ggsigma_group
 version 13
 		args lnf delta sigma p  
 		tempvar Fu Fl zu zl 
@@ -72,5 +73,6 @@ version 13
 		*Missing values
 			qui replace `lnf' = 0 if $ML_y2 == . & $ML_y1 == .
 				
-		
+		 *Group frequency
+		 qui replace `lnf' = `lnf'*$group_per
 end		

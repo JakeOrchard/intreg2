@@ -93,6 +93,7 @@ version 13.0
 	    local lntitle "Interval Regression with Log-Normal Distribution"
 		local normaltitle "Interval Regression with Normal Distribution"
 		local sgttitle "Interval Regression with SGT Distribution"
+		local sgedtitle "Interval Regression with the SGED Distribution"
 		
 		*Warns users specifying inital values if too few inital values are specified.
 		if "`initial'" != ""{			
@@ -208,12 +209,14 @@ version 13.0
 		}
 		*Duplicates observations if group data
 		if "`frequency'" != ""{
-			preserve
-			qui expand `frequency'
+			
+			qui egen tot = sum(`frequency')
+			qui gen per = `frequency'/tot
+			global group_per per
 		}
 		
-		*Evaluates model
-		
+		*Evaluates model if nongroup data
+if "`frequency'" == ""{	
 		if "`distribution'" == "normal"{
 			
 			local evaluator intllf_normal
@@ -222,7 +225,7 @@ version 13.0
 			di as txt "Fitting constant only model:"
 			
 			ml model lf `evaluator' (mu: `depvar1' `depvar2'=)  (sigma: ///
-			) if `touse' ==1 , missing search(on)   maximize /// 
+			) [`weight'`exp'] if `touse' ==1 , missing search(on)   maximize /// 
 			initial(`initial') `constraints' `technique'  `difficult' `iterate' ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
 			`tolerance' `ltolerance' `nrtolerance' title(`normaltitle') `vce' ///
@@ -236,7 +239,7 @@ version 13.0
 			di as txt "Fitting Full model:"
 			
 			ml model lf `evaluator' (mu: `depvar1' `depvar2' = `regs')  (sigma: ///
-			`sigmavars') if `touse' ==1 , missing search(on) continue  maximize /// 
+			`sigmavars') [`weight'`exp'] if `touse' ==1 , missing search(on) continue  maximize /// 
 			initial(`initial') `constraints' `technique'  `difficult' `iterate' ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
 			`tolerance' `ltolerance' `nrtolerance' title(`normaltitle') `vce' ///
@@ -253,7 +256,7 @@ version 13.0
 			di as txt "Fitting constant only model:"
 				
 			ml model lf `evaluator' (mu: `depvar1' `depvar2' = )  /// 
-			(sigma: ) if `touse' ==1 , missing search(on)  /// 
+			(sigma: ) [`weight'`exp'] if `touse' ==1 , missing search(on)  /// 
 			maximize initial(`initial') `constraints' `technique'  `difficult'  ///
 			`iterate' `log' `trace' `gradient' `showstep' `hessian'  ///
 			`showtolerance' `tolerance' `ltolerance' `nrtolerance' title(`lntitle') ///
@@ -267,7 +270,7 @@ version 13.0
 			di as txt "Fitting Full model:"
 			
 			ml model lf `evaluator' (mu: `depvar1' `depvar2' = `regs')  /// 
-			(sigma: `sigmavars' ) if `touse' ==1 , missing search(on) continue /// 
+			(sigma: `sigmavars' ) [`weight'`exp'] if `touse' ==1 , missing search(on) continue /// 
 			maximize initial(`initial') `constraints' `technique'  `difficult'  ///
 			`iterate' `log' `trace' `gradient' `showstep' `hessian'  ///
 			`showtolerance' `tolerance' `ltolerance' `nrtolerance' title(`lntitle') ///
@@ -285,7 +288,7 @@ version 13.0
 			
 			ml model lf `evaluator' (mu: `depvar1' `depvar2' = )   ///
 			(lambda: ) (sigma:  ) (p: ) (q:  ///
-			) if `touse' ==1 , missing search(on) maximize  ///
+			) [`weight'`exp'] if `touse' ==1 , missing search(on) maximize  ///
 			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
 			`tolerance' `ltolerance' `nrtolerance' title(`sgttitle') `vce'  ///
@@ -300,7 +303,7 @@ version 13.0
 			
 			ml model lf `evaluator' (mu: `depvar1' `depvar2' = `regs')   ///
 			(lambda: `lambdavars') (sigma: `sigmavars' ) (p: `pvars') (q:  ///
-			`qvars') if `touse' ==1 , missing search(on) maximize continue ///
+			`qvars') [`weight'`exp'] if `touse' ==1 , missing search(on) maximize continue ///
 			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
 			`tolerance' `ltolerance' `nrtolerance' title(`sgttitle') `vce'  ///
@@ -317,11 +320,11 @@ version 13.0
 			di as txt "Fitting constant only model:"
 			
 			ml model lf `evaluator' (m: `depvar1' `depvar2' = )   ///
-			(lambda: ) (sigma:  ) (p: )   ///
+			(lambda: ) (sigma:  ) (p: ) [`weight'`exp']  ///
 			 if `touse' ==1 , missing search(on) maximize  ///
 			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
-			`tolerance' `ltolerance' `nrtolerance' title(`sgttitle') `vce'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`sgedtitle') `vce'  ///
 			`robust' `cluster' `svy'
 			
 			if "`showconstonly'" != ""{
@@ -336,7 +339,7 @@ version 13.0
 			 if `touse' ==1 , missing search(on) maximize continue ///
 			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
 			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
-			`tolerance' `ltolerance' `nrtolerance' title(`sgttitle') `vce'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`sgedtitle') `vce'  ///
 			`robust' `cluster' `svy'
 			
 			ml display
@@ -438,6 +441,236 @@ version 13.0
 			
 			ml display
 		}
+}	
+*Evaluates model if grouped data
+else{	
+		if "`distribution'" == "normal"{
+			
+			local evaluator intllf_normal_group
+			
+			di " "
+			di as txt "Fitting constant only model:"
+			
+			ml model lf `evaluator' (mu: `depvar1' `depvar2'=)  (sigma: ///
+			) [`weight'`exp'] if `touse' ==1 , missing search(on)   maximize /// 
+			initial(`initial') `constraints' `technique'  `difficult' `iterate' ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`normaltitle') `vce' ///
+			`robust' `cluster' `svy'	 
+			
+			if "`showconstonly'" != ""{
+				ml display, showeqns //Shows constant only model
+			}
+			
+			di " "
+			di as txt "Fitting Full model:"
+			
+			ml model lf `evaluator' (mu: `depvar1' `depvar2' = `regs')  (sigma: ///
+			`sigmavars') [`weight'`exp'] if `touse' ==1 , missing search(on) continue  maximize /// 
+			initial(`initial') `constraints' `technique'  `difficult' `iterate' ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`normaltitle') `vce' ///
+			`robust' `cluster' `svy'
+			
+			ml display
+			
+		}
+		else if "`distribution'" == "lnormal" | "`distribution'" == "ln" {
+			
+			local evaluator intllf_ln_group
+			
+			
+			di " "
+			di as txt "Fitting constant only model:"
+				
+			ml model lf `evaluator' (mu: `depvar1' `depvar2' = )  /// 
+			(sigma: ) [`weight'`exp'] if `touse' ==1 , missing search(on)  /// 
+			maximize initial(`initial') `constraints' `technique'  `difficult'  ///
+			`iterate' `log' `trace' `gradient' `showstep' `hessian'  ///
+			`showtolerance' `tolerance' `ltolerance' `nrtolerance' title(`lntitle') ///
+			`vce'  `robust' `cluster' `svy' 
+			
+			if "`showconstonly'" != ""{
+				ml display, showeqns //Shows constant only model
+			}
+			
+			di " "
+			di as txt "Fitting Full model:"
+			
+			ml model lf `evaluator' (mu: `depvar1' `depvar2' = `regs')  /// 
+			(sigma: `sigmavars' ) [`weight'`exp'] if `touse' ==1 , missing search(on) continue /// 
+			maximize initial(`initial') `constraints' `technique'  `difficult'  ///
+			`iterate' `log' `trace' `gradient' `showstep' `hessian'  ///
+			`showtolerance' `tolerance' `ltolerance' `nrtolerance' title(`lntitle') ///
+			`vce'  `robust' `cluster' `svy'
+			
+			ml display
+			
+		}
+		else if "`distribution'" == "sgt"{
+			
+			local evaluator intllf_sgt_group
+			
+			di " "
+			di as txt "Fitting constant only model:"
+			
+			ml model lf `evaluator' (mu: `depvar1' `depvar2' = )   ///
+			(lambda: ) (sigma:  ) (p: ) (q:  ///
+			) [`weight'`exp'] if `touse' ==1 , missing search(on) maximize  ///
+			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`sgttitle') `vce'  ///
+			`robust' `cluster' `svy'
+			
+			if "`showconstonly'" != ""{
+				ml display, showeqns //Shows constant only model
+			}
+			
+			di " "
+			di as txt "Fitting Full model:"
+			
+			ml model lf `evaluator' (mu: `depvar1' `depvar2' = `regs')   ///
+			(lambda: `lambdavars') (sigma: `sigmavars' ) (p: `pvars') (q:  ///
+			`qvars') [`weight'`exp'] if `touse' ==1 , missing search(on) maximize continue ///
+			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`sgttitle') `vce'  ///
+			`robust' `cluster' `svy'
+			
+			ml display
+			
+		}
+		else if "`distribution'" == "sged"{
+			
+			local evaluator intllf_sged_group
+			
+			di " "
+			di as txt "Fitting constant only model:"
+			
+			ml model lf `evaluator' (m: `depvar1' `depvar2' = )   ///
+			(lambda: ) (sigma:  ) (p: ) [`weight'`exp']  ///
+			 if `touse' ==1 , missing search(on) maximize  ///
+			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`sgttitle') `vce'  ///
+			`robust' `cluster' `svy'
+			
+			if "`showconstonly'" != ""{
+				ml display, showeqns //Shows constant only model
+			}
+			
+			di " "
+			di as txt "Fitting Full model:"
+			
+			ml model lf `evaluator' (m: `depvar1' `depvar2' = `regs')   ///
+			(lambda: `lambdavars') (sigma: `sigmavars' ) (p: `pvars') [`weight'`exp']   ///
+			 if `touse' ==1 , missing search(on) maximize continue ///
+			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`sgttitle') `vce'  ///
+			`robust' `cluster' `svy'
+			
+			ml display
+			
+		}
+		else if "`distribution'" == "gb2"{
+			
+			local evaluator intllf_gb2sigma_group
+			
+			di " "
+			di as txt "Fitting constant only model:"
+			
+			ml model lf `evaluator' (delta: `depvar1' `depvar2' = )   ///
+			(sigma:  ) (p: ) (q:  ///
+			) [`weight'`exp'] if `touse' ==1 , missing search(on) maximize  ///
+			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`gb2title') `vce'  ///
+			`robust' `cluster' `svy'
+			
+			if "`showconstonly'" != ""{
+				ml display, showeqns //Shows constant only model
+			}
+			
+			di " "
+			di as txt "Fitting Full model:"
+			
+			ml model lf `evaluator' (delta: `depvar1' `depvar2' = `regs')   ///
+			(sigma: `sigmavars') (p: `pvars') (q:  ///
+			`qvars') [`weight'`exp'] if `touse' ==1 , missing search(on) maximize continue ///
+			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`gb2title') `vce'  ///
+			`robust' `cluster' `svy'
+			
+			ml display, plus
+			
+		}
+		else if "`distribution'" == "gg"{
+			
+			local evaluator intllf_ggsigma_group
+			
+			di " "
+			di as txt "Fitting constant only model:"
+			
+			ml model lf `evaluator' (delta: `depvar1' `depvar2' = )   ///
+			(sigma: ) (p: ) [`weight'`exp']  ///
+			 if `touse' ==1 , missing search(on) maximize  ///
+			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`ggtitle') `vce'  ///
+			`robust' `cluster' `svy'
+			
+			if "`showconstonly'" != ""{
+				ml display, showeqns //Shows constant only model
+			}
+			
+			di " "
+			di as txt "Fitting Full model:"
+			
+			ml model lf `evaluator' (delta: `depvar1' `depvar2' = `regs')   ///
+			(sigma: `sigmavars') (p: `pvars') [`weight'`exp']   ///
+			 if `touse' ==1 , missing search(on) maximize continue ///
+			initial(`initial') `constraints' `technique'  `difficult' `iterate'  ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`ggtitle') `vce'  ///
+			`robust' `cluster' `svy'
+			
+			ml display
+			
+		}
+		else{
+			
+			local evaluator intllf_normal_group
+			
+			di " "
+			di as txt "Fitting constant only model:"
+			
+			ml model lf `evaluator' (mu: `depvar1' `depvar2'=)  (sigma: ///
+			)  [`weight'`exp']  if `touse' ==1 , missing search(on)   maximize /// 
+			initial(`initial') `constraints' `technique'  `difficult' `iterate' ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`normaltitle') `vce' ///
+			`robust' `cluster' `svy'	
+			
+			if "`showconstonly'" != ""{
+				ml display, showeqns //Shows constant only model
+			}
+			
+			di " "
+			di as txt "Fitting Full model:"
+			
+			ml model lf `evaluator' (mu: `depvar1' `depvar2' = `regs')  (sigma: ///
+			`sigmavars')  [`weight'`exp']  if `touse' ==1 , missing search(on) continue  maximize /// 
+			initial(`initial') `constraints' `technique'  `difficult' `iterate' ///
+			`log' `trace' `gradient' `showstep' `hessian' `showtolerance'  ///
+			`tolerance' `ltolerance' `nrtolerance' title(`normaltitle') `vce' ///
+			`robust' `cluster' `svy'
+			
+			ml display
+		}
+}	
+	******************
 		
 		mat betas = e(b) //coefficient matrix
 		
@@ -554,7 +787,7 @@ version 13.0
 		}
 		*Observation type count for grouped regression
 		if "`frequency'" ~= ""{
-			restore 
+			drop tot per
 			noi di " "
 			noi di as txt " {res: `total'} groups"
 			if `nleft' != 1{

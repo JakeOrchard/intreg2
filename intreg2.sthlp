@@ -56,6 +56,7 @@ normal; default is normal. {p_end}
 {synopt:{opth const:raints(numlist)}} specified linear constraints by number to be applied. Can use this option along with {opt dist:ribution} to allow for any distribution in the SGT or GB2 family trees.{p_end}
 {synopt:{opth freq:uency(varlist)}} if using group data specify variable that denotes frequency. {p_end}
 
+
 {syntab: Model}
 {synopt:{cmdab: sigma(}{varlist}{cmd:)}} allow sigma to vary as a function of independent variables; can use with dist_type normal, lnormal, sgt, or sged. {p_end}
 {synopt:{cmdab: lambda(}{varlist}{cmd:)}} allow lambda to vary as a function of independent variables; can use with dist_type sgt or sged. {p_end}

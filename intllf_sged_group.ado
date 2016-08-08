@@ -1,12 +1,12 @@
 /*This ado file gives the log likelihood function used in interval regressions
-for the SGED distribution.
+for the SGED distribution. For use with grouped data.
 It works with intreg2.ado
-v 1.1
+v 1
 Author--Jacob Orchard
-Update--6/13/2016*/
+Update--8/8/2016*/
 
 
-program intllf_sged
+program intllf_sged_group
 version 13
 		args lnf mu lambda sigma p 
 		tempvar Fu Fl zu zl 
@@ -75,6 +75,7 @@ version 13
 		*Missing values
 			qui replace `lnf' = 0 if $ML_y2 == . & $ML_y1 == .
 		
-		
+		 *Group frequency
+		 qui replace `lnf' = `lnf'*$group_per
 		
 end		
