@@ -56,7 +56,6 @@ normal; default is normal. {p_end}
 {synopt:{opth const:raints(numlist)}} specified linear constraints by number to be applied. Can use this option along with {opt dist:ribution} to allow for any distribution in the SGT or GB2 family trees.{p_end}
 {synopt:{opth freq:uency(varlist)}} if using group data specify variable that denotes frequency. {p_end}
 
-
 {syntab: Model}
 {synopt:{cmdab: sigma(}{varlist}{cmd:)}} allow sigma to vary as a function of independent variables; can use with dist_type normal, lnormal, sgt, or sged. {p_end}
 {synopt:{cmdab: lambda(}{varlist}{cmd:)}} allow lambda to vary as a function of independent variables; can use with dist_type sgt or sged. {p_end}
@@ -263,6 +262,14 @@ at the end of the printout {p_end}
 {phang2}{cmd:. constraint define 1 [q]_cons=1}
 
 {phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age nev_mar rural school tenure, distribution(gb2) constraints( 1 )}
+
+{marker author}{...}
+{title:Author}
+
+{phang}
+Authored by James McDonald and Jacob Orchard at Brigham Young University. For
+support contact Jacob at orchard.jake@gmail.com.
+
 
 {marker references}{...}
 {title:References}
