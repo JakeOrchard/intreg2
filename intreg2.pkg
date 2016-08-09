@@ -18,9 +18,15 @@ p intreg2 Generalized Interval Regression
 f intreg2.ado
 f intreg2.sthlp
 f intllf_gb2sigma.ado
+f intllf_gb2sigma_group.ado
 f intllf_ggsigma.ado
+f intllf_ggsignma_group.ado
 f intllf_ln.ado
+f intllf_ln_group.ado
 f intllf_normal.ado
+f intllf_normal_group.ado
 f intllf_sged.ado
+f intllf_sged_group.ado
 f intllf_sgt.ado
+f intllf_sgt_group.ado
 
