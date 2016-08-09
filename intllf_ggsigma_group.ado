@@ -9,7 +9,7 @@ Update--8/8/2016*/
 
 
 
-program intllf_ggsigma
+program intllf_ggsigma_group
 version 13
 		args lnf delta sigma p  
 		tempvar Fu Fl zu zl 
@@ -73,5 +73,6 @@ version 13
 		*Missing values
 			qui replace `lnf' = 0 if $ML_y2 == . & $ML_y1 == .
 				
-		
+		 *Group frequency
+		 qui replace `lnf' = `lnf'*$group_per
 end		
