@@ -46,8 +46,7 @@ version 13
 								if $ML_y1 != . & $ML_y2 != . &  $ML_y1 != $ML_y2
 								
 			qui replace `Fu' = .5*(1-`lambda') + .5*(1+`lambda'*sign($ML_y2- ///
-								`mu'))*sign($ML_y2 - `mu')*exp(lngamma(1/`p')+ ///
-								lngamma(`q')-lngamma(1/`p'+`q'))*ibeta(1/`p',`q',`zu') ///
+								`mu'))*sign($ML_y2 - `mu')*ibeta(1/`p',`q',`zu') ///
 								if $ML_y1 != . & $ML_y2 != . &  $ML_y1 != $ML_y2
 								
 			qui replace `zl' = abs($ML_y1 - `mu')^`p'/(abs($ML_y1 - `mu')^`p' + ///
@@ -55,8 +54,7 @@ version 13
 								if $ML_y1 != . & $ML_y2 != . &  $ML_y1 != $ML_y2
 								
 			qui replace `Fl' = .5*(1-`lambda') + .5*(1+`lambda'*sign($ML_y1- ///
-								`mu'))*sign($ML_y1 - `mu')*exp(lngamma(1/`p')+ ///
-								lngamma(`q')-lngamma(1/`p'+`q'))*ibeta(1/`p',`q',`zl') ///
+								`mu'))*sign($ML_y1 - `mu')*ibeta(1/`p',`q',`zl') ///
 								if $ML_y1 != . & $ML_y2 != . &  $ML_y1 != $ML_y2
 								
 			qui replace `lnf' = log(`Fu' -`Fl') if $ML_y1 != . & $ML_y2 != . &  ///
@@ -68,8 +66,7 @@ version 13
 								if $ML_y1 != . & $ML_y2 == .
 								
 			qui replace `Fl' = .5*(1-`lambda') + .5*(1+`lambda'*sign($ML_y1- ///
-								`mu'))*sign($ML_y1 - `mu')*exp(lngamma(1/`p')+ ///
-								lngamma(`q')-lngamma(1/`p'+`q'))*ibeta(1/`p',`q',`zl') ///
+								`mu'))*sign($ML_y1 - `mu')*ibeta(1/`p',`q',`zl') ///
 								if $ML_y1 != . & $ML_y2 == .
 								
 			qui replace `lnf' = log(1-`Fl') if $ML_y1 != . & $ML_y2 == .
@@ -80,8 +77,7 @@ version 13
 								if $ML_y2 != . & $ML_y1 == .
 								
 			qui replace `Fu' = .5*(1-`lambda') + .5*(1+`lambda'*sign($ML_y2- ///
-								`mu'))*sign($ML_y2 - `mu')*exp(lngamma(1/`p')+ ///
-								lngamma(`q')-lngamma(1/`p'+`q'))*ibeta(1/`p',`q',`zu') ///
+								`mu'))*sign($ML_y2 - `mu')*ibeta(1/`p',`q',`zu') ///
 								if $ML_y2 != . & $ML_y1 == .
 								
 			qui replace `lnf' = log(`Fu') if $ML_y2 != . & $ML_y1 == .

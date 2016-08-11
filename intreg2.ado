@@ -210,9 +210,10 @@ version 13.0
 		*Duplicates observations if group data
 		if "`frequency'" != ""{
 			
-			qui egen tot = sum(`frequency')
-			qui gen per = `frequency'/tot
-			global group_per per
+			tempvar tot per
+			qui egen `tot' = sum(`frequency')
+			qui gen `per' = `frequency'/`tot'
+			global group_per `per'
 		}
 		
 		*Evaluates model if nongroup data
@@ -575,7 +576,7 @@ else{
 		}
 		else if "`distribution'" == "gb2"{
 			
-			local evaluator intllf_gb2sigma_group
+			local evaluator intllf_gb2_group
 			
 			di " "
 			di as txt "Fitting constant only model:"
@@ -675,8 +676,9 @@ else{
 		mat betas = e(b) //coefficient matrix
 		
 		*Find the Conditional expected value at specified level
-		if "`distribution'" == "gb2" | "`distribution'" == "gg" | "`distribution'" ///
-							== "ln" | "`distribution'" == "lnormal"		{
+		if "`distribution'" == "gb2" | "`distribution'" == "gg" ///
+		| "`distribution'" == "ln" | "`distribution'" == "lnormal" ///
+		| "`distribution'" == "sgt" | "`distribution'" == "sged"{
 			
 			mat mid_Xs = 1
 			if "`eyx'" == ""{
@@ -725,6 +727,45 @@ else{
 											( exp(lngamma(p))*exp(lngamma(q))))
 			}
 			
+			if "`distribution'" == "sgt"{
+			
+				mat mu = betas[1,"mu:"]
+				mat mu = mu'
+				mata: st_matrix("mu", flipud(st_matrix("mu"))) //flips matrix around
+																		// to conform with Xs										
+				mat xbeta = mid_Xs*mu     																
+				mat p = betas[1,"p:_cons"]
+				scalar p = p[1,1]
+				mat q = betas[1,"q:_cons"]
+				scalar q = q[1,1]
+				mat lambda = betas[1,"lambda:_cons"]
+				scalar lambda = lambda[1,1]
+				mat sigma = betas[1,"sigma:_cons"]
+				scalar sigma = sigma[1,1]
+				scalar xbeta = xbeta[1,1]
+				mat expected = xbeta + 2*lambda*sigma*((q^(1/p))*(exp(lngamma(2/p) ///
+				+lngamma(q-(1/p)) - lngamma((1/p)+q))/exp(lngamma(1/p) ///
+				+lngamma(q)) - lngamma((1/p)+q)) ) 
+			}
+			
+			if "`distribution'" == "sged"{
+			
+				mat mu = betas[1,"m:"]
+				mat mu = mu'
+				mata: st_matrix("mu", flipud(st_matrix("mu"))) //flips matrix around
+																		// to conform with Xs										
+				mat xbeta = mid_Xs*mu     																
+				mat p = betas[1,"p:_cons"]
+				scalar p = p[1,1]
+				mat lambda = betas[1,"lambda:_cons"]
+				scalar lambda = lambda[1,1]
+				mat sigma = betas[1,"sigma:_cons"]
+				scalar sigma = sigma[1,1]
+				scalar xbeta = xbeta[1,1]
+				mat expected = xbeta + 2*lambda*sigma*(q^(1/p))*(exp(lngamma(2/p)) ///
+				/exp(lngamma(1/p))) 
+			}
+			
 			if "`distribution'" == "gg"{
 			
 				mat deltas = betas[1,"delta:"]
@@ -747,7 +788,7 @@ else{
 																		// to conform with Xs										
 				mat xbeta = mid_Xs*mu
 				scalar xbeta = xbeta[1,1]
-				mat expected = exp((xbeta + sigma^2)/2)
+				mat expected = exp(xbeta + (sigma^2/2))
 			}
 					
 			scalar eyx = expected[1,1]
@@ -787,7 +828,7 @@ else{
 		}
 		*Observation type count for grouped regression
 		if "`frequency'" ~= ""{
-			drop tot per
+			
 			noi di " "
 			noi di as txt " {res: `total'} groups"
 			if `nleft' != 1{

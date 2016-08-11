@@ -33,15 +33,13 @@ version 13
 			qui replace `zu' = ($ML_y2/exp(`delta'))^(1/`sigma')/(1+($ML_y2/exp(`delta'))^(1/`sigma')) if ///
 								$ML_y1 != . & $ML_y2 != . &  $ML_y1 != $ML_y2
 								
-			qui replace `Fu' = exp(lngamma(`p')+lngamma(`q')-lngamma(`p'+`q'))* /// 
-								ibeta(`p',`q',`zu') if $ML_y1 != . & $ML_y2 != . ///
+			qui replace `Fu' = 	ibeta(`p',`q',`zu') if $ML_y1 != . & $ML_y2 != . ///
 								&  $ML_y1 != $ML_y2
 								
 			qui replace `zl' = ($ML_y1/exp(`delta'))^(1/`sigma')/(1+($ML_y1/exp(`delta'))^(1/`sigma')) if /// 
 								$ML_y1 != . & $ML_y2 != . &  $ML_y1 != $ML_y2
 								
-			qui replace `Fl' = exp(lngamma(`p')+lngamma(`q')-lngamma(`p'+`q'))* ///
-								ibeta(`p',`q',`zl') if $ML_y1 != . & $ML_y2 != . ///
+			qui replace `Fl' = 	ibeta(`p',`q',`zl') if $ML_y1 != . & $ML_y2 != . ///
 										&  $ML_y1 != $ML_y2
 										
 			qui replace `lnf' = log(`Fu' -`Fl') if $ML_y1 != . & $ML_y2 != . ///
@@ -52,8 +50,7 @@ version 13
 			qui replace `zl' = ($ML_y1/exp(`delta'))^(1/`sigma')/(1+($ML_y1/exp(`delta'))^(1/`sigma')) if ///
 									$ML_y1 != . & $ML_y2 == .
 									
-			qui replace `Fl' = exp(lngamma(`p')+lngamma(`q')-lngamma(`p'+  ///
-							`q'))*ibeta(`p',`q',`zl') if $ML_y1 != . & $ML_y2 == .
+			qui replace `Fl' = ibeta(`p',`q',`zl') if $ML_y1 != . & $ML_y2 == .
 							
 			qui replace `lnf' = log(1-`Fl') if $ML_y1 != . & $ML_y2 == .
 		
@@ -62,15 +59,12 @@ version 13
 			qui replace `zu' = ($ML_y2/exp(`delta'))^(1/`sigma')/(1+($ML_y2/exp(`delta'))^(1/`sigma')) ///
 								if $ML_y2 != . & $ML_y1 == .
 								
-			qui replace `Fu' = exp(lngamma(`p')+lngamma(`q')-lngamma(`p'+ ///
-								`q'))*ibeta(`p',`q',`zu') if $ML_y2 != . & ///
+			qui replace `Fu' = ibeta(`p',`q',`zu') if $ML_y2 != . & ///
 									$ML_y1 == .
 									
 			qui replace `lnf' = log(`Fu') if $ML_y2 != . & $ML_y1 == .
 			
 		*Missing values
 			qui replace `lnf' = 0 if $ML_y2 == . & $ML_y1 == .
-		
-		
 		
 end		

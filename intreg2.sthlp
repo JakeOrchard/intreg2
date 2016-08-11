@@ -95,7 +95,20 @@ be distributed according to a more general distribution including all distributi
 in the Skewed Generalized T family and Generalized Beta of the Second Kind tree. Finally,
 {cmd: intreg2} allows for grouped data when using the frequency option.
 
+{pstd}
+ The assumed model for interval regression is y = XB + eps where only the 
+ thresholds containtin the latent variable y are observed, X is a vector of
+ explanatory variables with a corresponding coefficient vector B and eps is assumed
+ to be independently and identically distributed random distrubances. The upper and 
+ lower thresholds for y can be denoted by U and L respectively.
  
+ {pstd}
+ The conditional probability that y is in the interval (L,U) is: Pr(L <= y <= U)
+ = F(eps = U - XB: theta) - F(eps: L-XB: theta), where F denotes the cdf of the
+ random disturbances and theta denotes a vector of distributional parameters. 
+ {cmd:intreg2} uses MLE on the corresponding log-likelihood function to estimate
+ beta (displayed as mu or delta in the output) and the distributional parameters 
+ theta.
 
 
 
@@ -118,16 +131,18 @@ command; see {manhelp constraint R}.
 
 {phang} 
 {opt freq:uency}({it:{help varlist)}} if using grouped data, specify the variable 
-that denotes the frequency of the observation.  
+that denotes the frequency of the observation. Can be in percentage terms or 
+levels as {cmd: intreg2} will normalize by summing the value of 
+frequency for all observations.
 
 {dlgtab: Model}
 
 {phang}
-The {indepvars} specified will allow the location parameter (mu or a) to vary
+The {indepvars} specified will allow the location parameter (mu or delta) to vary
 as a function of the independent variables. The other parameters in the distribution
 can also be a function of explanatory variables by using the commands below.
 If the user specifies a parameter that is not part of dist_type then {cmd: intreg2}
-will throw an error; e.g. specifying independent variables for q when using the
+will indicate an error; e.g. specifying independent variables for q when using the
 Generalized Gamma distribution.
 
 {phang}
@@ -185,7 +200,9 @@ the GB2 and the SGED, and five for the SGT.
 {opt showtol:erance},
 {opt tol:erance(#)},
 {opt ltol:erance(#)},
-{opt nrtol:erance(#)}; see {manhelp maximize R}.
+{opt nrtol:erance(#)}; see {manhelp maximize R}. Allowed techniques include Newton-Raphson (nr), Berndt-Hall-Hausman (bhhh), Davidon
+-Fletcher-Powell (dfp), and Broyden-Fletcher-Goldfarb-Shanno (bfgs). The default
+ algorithm is Newton-Raphson.
 
 {dlgtab: Display}
 
@@ -234,7 +251,7 @@ If the optimization is not working, try using the difficult option. You can also
 
 {pstd}
 We have a dataset containing wages, truncated and in categories.  Some of
-the observations on wages are
+the observations on wages appear below
 
         wage1    wage2
 {p 8 27 2}20{space 7}25{space 6} meaning  20000 <= wages <= 25000{p_end}
@@ -243,19 +260,19 @@ the observations on wages are
 {pstd}Setup{p_end}
 {phang2}{cmd:. webuse intregxmpl}{p_end}
 
-{pstd}Interval regression with normal distribution{p_end}
+{pstd}Interval regression with a normal distribution{p_end}
 {phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age nev_mar rural school tenure}
 
-{pstd}Interval regression with gb2 distribution (use difficult option) {p_end}
+{pstd}Interval regression with a gb2 distribution (use difficult option) {p_end}
 {phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age nev_mar rural school, distribution(gb2) difficult}
 
-{pstd}Interval regression with gb2 distribution with the expected value of the 
+{pstd}Interval regression with a gb2 distribution with the expected value of the 
 dependent variable evaluated when the independent variables are at the 25 percentile (E[Y|X] appears 
 at the end of the printout {p_end}
 {phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age, distribution(gb2) eyx(p25) difficult}
 
 
-{pstd}Interval regression with sgt distribution allowing sigma to vary as a function of independent variables{p_end}
+{pstd}Interval regression with a sgt distribution allowing sigma to vary as a function of independent variables{p_end}
 {phang2}{cmd:. intreg2 wage1 wage2 age c.age#c.age nev_mar rural school tenure, distribution(sgt) sigma(age)}
 
 {pstd}Interval regression using the burr3 distribution {p_end}
@@ -278,5 +295,9 @@ support contact Jacob at orchard.jake@gmail.com.
 James B., McDonald, Olga Stoddard, and Daniel Walton. 2016.
 {it:On using interval response data in experimental economics},
 working paper.
+
+{phang}
+James B., McDonald, and Daniel Walton. 2016.
+{it: Distributional Assumptions and the Estimation of Contingent Valuation Models.}
 
 
