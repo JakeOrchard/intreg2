@@ -8,4 +8,4 @@ Installation
 
 The development version from github:
 
-net install intreg2, from(https://raw.githubusercontent.com/jakesurf/intreg2/master/) force
+net install intreg2, from(https://raw.githubusercontent.com/JakeOrchard/intreg2/master/) force
